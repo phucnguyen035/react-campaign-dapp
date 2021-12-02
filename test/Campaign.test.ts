@@ -33,8 +33,7 @@ describe('Campaign contract', () => {
 
     it('should increase the value of contract by the amount of value', async () => {
       const value = 100;
-      const user = signers[1];
-      campaign = campaign.connect(user);
+      campaign = campaign.connect(signers[1]);
 
       await campaign.contribute({ value });
 
@@ -48,6 +47,35 @@ describe('Campaign contract', () => {
       await campaign.contribute({ value: 100 });
 
       expect(await campaign.approvers(0)).to.eq(await user.getAddress());
+    });
+  });
+
+  describe('Create request function', () => {
+    it('should revert if sender is not the manager', async () => {
+      const user = signers[1];
+      campaign = campaign.connect(user);
+      const trx = campaign.createRequest(
+        'description',
+        10,
+        await user.getAddress()
+      );
+
+      await expect(trx).to.be.revertedWith('Only manager is allowed');
+    });
+
+    it('should add request with all valid parameters', async () => {
+      const description = 'description';
+      const value = 10;
+      const recipient = await signers[1].getAddress();
+
+      await campaign.createRequest(description, value, recipient);
+
+      const req = await campaign.requests(0);
+
+      expect(req.description).to.eq(description);
+      expect(req.value).to.eq(value);
+      expect(req.recipient).to.eq(recipient);
+      expect(req.status).to.eq('pending');
     });
   });
 });
