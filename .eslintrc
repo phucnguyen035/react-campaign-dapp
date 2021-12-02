@@ -1,0 +1,9 @@
+{
+  "env": {
+    "node": true,
+    "mocha": true,
+    "browser": true
+  },
+  "extends": ["next/core-web-vitals", "prettier"],
+  "plugins": ["import"]
+}
